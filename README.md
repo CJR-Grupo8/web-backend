@@ -64,7 +64,7 @@ cp .env.example .env
 ```
 >⚠️ **Importante:** NÃO coloque informações da **.env** dentro do molde **.env.example**, pois esse sim sempre será visível no repositório!
 
-### 3. Rodar servidor
+### 4. Rodar servidor
 O servidor, após comando abaixo, será inciado em **http://localhost:3001**
 ```bash
 npm run start:dev
