@@ -33,6 +33,7 @@
     </td>
   </tr>
 </table>
+
 ---
 
 ## 🛠️ Tecnologias
