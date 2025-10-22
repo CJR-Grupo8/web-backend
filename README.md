@@ -65,6 +65,7 @@ Instale o PostgreSQL e crie o banco:
 ### 3. Criar .env local
 Criar um .env baseado no molde da .env.example
 > Substitua com sua senha do PostgreSQL
+
 >⚠️ **Importante:** NÃO coloque informações da **.env** dentro do molde **.env.example**, pois esse sim sempre será visível no repositório!
 
 ### 4. Rodar servidor
