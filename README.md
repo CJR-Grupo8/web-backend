@@ -39,7 +39,7 @@
 ## 🛠️ Tecnologias
 
 - Node.js 
-- Nest.js 
+- Next.js 
 - PostgreSQL
 
 ---
