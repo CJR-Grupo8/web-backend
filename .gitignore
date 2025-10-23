@@ -125,6 +125,13 @@ dist
 # TernJS port file
 .tern-port
 
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
