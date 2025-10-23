@@ -18,11 +18,33 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]
+  lojas     Loja[]
+  coments     Coment[]
 }
 
-model Post {
+model Loja {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  descricao String?
+  createdAt DateTime  @default(now())
+  dono      User      @relation(fields: [donoId], references: [id])
+  donoId    Int
+  produtos  Produto[]
+}
+
+model Produto {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  preco     Float
+  descricao String?
+  estoque   Int?     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  loja      Loja     @relation(fields: [lojaId], references: [id])
+  lojaId    Int
+}
+
+model Coment {
   id        Int      @id @default(autoincrement())
   title     String
   content   String?
@@ -32,4 +54,3 @@ model Post {
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
 }
-
