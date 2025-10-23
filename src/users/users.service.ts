@@ -130,7 +130,7 @@ export class UsersService {
     // Hash password if provided
     const data = { ...updateUserDto };
     if (updateUserDto.password) {
-      data.password = await bcrypt.hash(updateUserDto.password, 10);
+      data.password = await bcrypt.hash(updateUserDto.password, 12);
     }
 
     const user = await this.prisma.user.update({

@@ -185,7 +185,7 @@ export class AppService {
 <body>
   <div class="container">
     <div class="header">
-      <h1>🚀 CRUD API - Web Backend</h1>
+      <h1>🚀 E-commerce API - Web Backend</h1>
       <p class="subtitle">API REST com NestJS + Prisma + PostgreSQL</p>
       <span class="status">✅ API Online</span>
     </div>
@@ -216,30 +216,86 @@ export class AppService {
       </div>
 
       <div class="card">
-        <h2><span class="icon">📝</span> Posts</h2>
+        <h2><span class="icon">🏪</span> Lojas</h2>
         <div class="endpoint">
           <span class="method post">POST</span>
-          <span class="endpoint-path">/posts</span>
+          <span class="endpoint-path">/lojas</span>
         </div>
         <div class="endpoint">
           <span class="method get">GET</span>
-          <span class="endpoint-path">/posts</span>
+          <span class="endpoint-path">/lojas</span>
         </div>
         <div class="endpoint">
           <span class="method get">GET</span>
-          <span class="endpoint-path">/posts/:id</span>
+          <span class="endpoint-path">/lojas?donoId=:id</span>
         </div>
         <div class="endpoint">
           <span class="method get">GET</span>
-          <span class="endpoint-path">/posts/author/:id</span>
+          <span class="endpoint-path">/lojas/:id</span>
         </div>
         <div class="endpoint">
           <span class="method patch">PATCH</span>
-          <span class="endpoint-path">/posts/:id</span>
+          <span class="endpoint-path">/lojas/:id</span>
         </div>
         <div class="endpoint">
           <span class="method delete">DELETE</span>
-          <span class="endpoint-path">/posts/:id</span>
+          <span class="endpoint-path">/lojas/:id</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">�</span> Produtos</h2>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="endpoint-path">/produtos</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/produtos</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/produtos?lojaId=:id</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/produtos/:id</span>
+        </div>
+        <div class="endpoint">
+          <span class="method patch">PATCH</span>
+          <span class="endpoint-path">/produtos/:id</span>
+        </div>
+        <div class="endpoint">
+          <span class="method delete">DELETE</span>
+          <span class="endpoint-path">/produtos/:id</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">💬</span> Comentários</h2>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="endpoint-path">/comments</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/comments</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/comments?authorId=:id</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/comments/:id</span>
+        </div>
+        <div class="endpoint">
+          <span class="method patch">PATCH</span>
+          <span class="endpoint-path">/comments/:id</span>
+        </div>
+        <div class="endpoint">
+          <span class="method delete">DELETE</span>
+          <span class="endpoint-path">/comments/:id</span>
         </div>
       </div>
 
@@ -249,7 +305,11 @@ export class AppService {
           <span class="method get">GET</span>
           <span class="endpoint-path">/health</span>
         </div>
-        <p style="margin-top: 15px; color: #666;">Verifica se a API está funcionando corretamente.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/health/db</span>
+        </div>
+        <p style="margin-top: 15px; color: #666;">Verifica se a API e o banco de dados estão funcionando.</p>
       </div>
     </div>
 
@@ -259,11 +319,14 @@ export class AppService {
         <button class="btn-success" onclick="testHealthCheck()">Health Check</button>
         <button class="btn-primary" onclick="createUser()">Criar Usuário</button>
         <button class="btn-primary" onclick="listUsers()">Listar Usuários</button>
-        <button class="btn-danger" onclick="deleteUser()">Deletar Usuário</button>
-        <button class="btn-primary" onclick="createPost()">Criar Post</button>
-        <button class="btn-primary" onclick="listPosts()">Listar Posts</button>
-        <button class="btn-warning" onclick="updatePost()">Atualizar Post</button>
-        <button class="btn-danger" onclick="deletePost()">Deletar Post</button>
+        <button class="btn-primary" onclick="createLoja()">Criar Loja</button>
+        <button class="btn-primary" onclick="listLojas()">Listar Lojas</button>
+        <button class="btn-primary" onclick="createProduto()">Criar Produto</button>
+        <button class="btn-primary" onclick="listProdutos()">Listar Produtos</button>
+        <button class="btn-primary" onclick="createComment()">Criar Comentário</button>
+        <button class="btn-primary" onclick="listComments()">Listar Comentários</button>
+        <button class="btn-warning" onclick="updateProduto()">Atualizar Produto</button>
+        <button class="btn-danger" onclick="deleteComment()">Deletar Comentário</button>
         <button class="btn-danger" onclick="clearOutput()">Limpar Console</button>
       </div>
       <div id="output">Console de saída:\n\nClique nos botões acima para testar a API...</div>
@@ -345,11 +408,10 @@ export class AppService {
       }
     }
 
-    async function createPost() {
+    async function createLoja() {
       try {
-        log('📝 Criando post...', 'info');
+        log('🏪 Criando loja...', 'info');
         
-        // Primeiro, busca um usuário para ser o autor
         const usersResponse = await fetch(\`\${API_URL}/users\`);
         const users = await usersResponse.json();
         
@@ -358,60 +420,154 @@ export class AppService {
           return;
         }
         
-        const post = {
-          title: \`Post de Teste - \${new Date().toLocaleString('pt-BR')}\`,
-          content: 'Este é um post de teste criado pela interface web!',
-          published: false,
-          authorId: users[0].id
+        const loja = {
+          nome: \`Loja de Teste - \${Math.floor(Math.random() * 1000)}\`,
+          descricao: 'Loja criada automaticamente pela interface web!',
+          donoId: users[0].id
         };
         
-        const response = await fetch(\`\${API_URL}/posts\`, {
+        const response = await fetch(\`\${API_URL}/lojas\`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(post)
+          body: JSON.stringify(loja)
         });
         
         const data = await response.json();
         if (response.ok) {
-          log(\`✅ Post criado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+          log(\`✅ Loja criada com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
         } else {
-          log(\`❌ Erro ao criar post: \${JSON.stringify(data, null, 2)}\`, 'error');
+          log(\`❌ Erro ao criar loja: \${JSON.stringify(data, null, 2)}\`, 'error');
         }
       } catch (error) {
         log(\`❌ ERRO: \${error.message}\`, 'error');
       }
     }
 
-    async function listPosts() {
+    async function listLojas() {
       try {
-        log('📚 Listando todos os posts...', 'info');
-        const response = await fetch(\`\${API_URL}/posts\`);
+        log('🏪 Listando todas as lojas...', 'info');
+        const response = await fetch(\`\${API_URL}/lojas\`);
         const data = await response.json();
-        log(\`✅ Encontrados \${data.length} posts:\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+        log(\`✅ Encontradas \${data.length} lojas:\\n\${JSON.stringify(data, null, 2)}\`, 'success');
       } catch (error) {
         log(\`❌ ERRO: \${error.message}\`, 'error');
       }
     }
 
-    async function updatePost() {
+    async function createProduto() {
       try {
-        log('✏️ Atualizando post...', 'info');
+        log('📦 Criando produto...', 'info');
         
-        const postsResponse = await fetch(\`\${API_URL}/posts\`);
-        const posts = await postsResponse.json();
+        const lojasResponse = await fetch(\`\${API_URL}/lojas\`);
+        const lojas = await lojasResponse.json();
         
-        if (posts.length === 0) {
-          log('⚠️ Nenhum post encontrado. Crie um post primeiro!', 'warning');
+        if (lojas.length === 0) {
+          log('⚠️ Nenhuma loja encontrada. Crie uma loja primeiro!', 'warning');
           return;
         }
         
-        const postId = posts[0].id;
-        const update = {
-          title: \`Post Atualizado - \${new Date().toLocaleString('pt-BR')}\`,
-          published: true
+        const produto = {
+          nome: \`Produto Teste - \${Math.floor(Math.random() * 1000)}\`,
+          preco: parseFloat((Math.random() * 1000).toFixed(2)),
+          descricao: 'Produto de teste criado automaticamente!',
+          estoque: Math.floor(Math.random() * 100),
+          lojaId: lojas[0].id
         };
         
-        const response = await fetch(\`\${API_URL}/posts/\${postId}\`, {
+        const response = await fetch(\`\${API_URL}/produtos\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(produto)
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          log(\`✅ Produto criado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+        } else {
+          log(\`❌ Erro ao criar produto: \${JSON.stringify(data, null, 2)}\`, 'error');
+        }
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function listProdutos() {
+      try {
+        log('📦 Listando todos os produtos...', 'info');
+        const response = await fetch(\`\${API_URL}/produtos\`);
+        const data = await response.json();
+        log(\`✅ Encontrados \${data.length} produtos:\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function createComment() {
+      try {
+        log('💬 Criando comentário...', 'info');
+        
+        const usersResponse = await fetch(\`\${API_URL}/users\`);
+        const users = await usersResponse.json();
+        
+        if (users.length === 0) {
+          log('⚠️ Nenhum usuário encontrado. Crie um usuário primeiro!', 'warning');
+          return;
+        }
+        
+        const comment = {
+          title: \`Comentário - \${new Date().toLocaleString('pt-BR')}\`,
+          content: 'Este é um comentário de teste criado pela interface web!',
+          published: true,
+          authorId: users[0].id
+        };
+        
+        const response = await fetch(\`\${API_URL}/comments\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(comment)
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          log(\`✅ Comentário criado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+        } else {
+          log(\`❌ Erro ao criar comentário: \${JSON.stringify(data, null, 2)}\`, 'error');
+        }
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function listComments() {
+      try {
+        log('💬 Listando todos os comentários...', 'info');
+        const response = await fetch(\`\${API_URL}/comments\`);
+        const data = await response.json();
+        log(\`✅ Encontrados \${data.length} comentários:\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function updateProduto() {
+      try {
+        log('✏️ Atualizando produto...', 'info');
+        
+        const produtosResponse = await fetch(\`\${API_URL}/produtos\`);
+        const produtos = await produtosResponse.json();
+        
+        if (produtos.length === 0) {
+          log('⚠️ Nenhum produto encontrado. Crie um produto primeiro!', 'warning');
+          return;
+        }
+        
+        const produtoId = produtos[0].id;
+        const update = {
+          preco: parseFloat((Math.random() * 1000).toFixed(2)),
+          estoque: Math.floor(Math.random() * 100)
+        };
+        
+        const response = await fetch(\`\${API_URL}/produtos/\${produtoId}\`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(update)
@@ -419,75 +575,41 @@ export class AppService {
         
         const data = await response.json();
         if (response.ok) {
-          log(\`✅ Post atualizado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+          log(\`✅ Produto atualizado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
         } else {
-          log(\`❌ Erro ao atualizar post: \${JSON.stringify(data, null, 2)}\`, 'error');
+          log(\`❌ Erro ao atualizar produto: \${JSON.stringify(data, null, 2)}\`, 'error');
         }
       } catch (error) {
         log(\`❌ ERRO: \${error.message}\`, 'error');
       }
     }
 
-    async function deleteUser() {
+    async function deleteComment() {
       try {
-        log('🗑️ Deletando usuário...', 'info');
+        log('🗑️ Deletando comentário...', 'info');
         
-        const usersResponse = await fetch(\`\${API_URL}/users\`);
-        const users = await usersResponse.json();
+        const commentsResponse = await fetch(\`\${API_URL}/comments\`);
+        const comments = await commentsResponse.json();
         
-        if (users.length === 0) {
-          log('⚠️ Nenhum usuário encontrado para deletar!', 'warning');
+        if (comments.length === 0) {
+          log('⚠️ Nenhum comentário encontrado para deletar!', 'warning');
           return;
         }
         
-        // Deleta o último usuário da lista
-        const userId = users[users.length - 1].id;
-        const userName = users[users.length - 1].fullName;
+        const commentId = comments[comments.length - 1].id;
+        const commentTitle = comments[comments.length - 1].title;
         
-        log(\`🗑️ Deletando usuário ID \${userId} (\${userName})...\`, 'info');
+        log(\`🗑️ Deletando comentário ID \${commentId} (\${commentTitle})...\`, 'info');
         
-        const response = await fetch(\`\${API_URL}/users/\${userId}\`, {
+        const response = await fetch(\`\${API_URL}/comments/\${commentId}\`, {
           method: 'DELETE'
         });
         
         const data = await response.json();
         if (response.ok) {
-          log(\`✅ Usuário deletado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+          log(\`✅ Comentário deletado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
         } else {
-          log(\`❌ Erro ao deletar usuário: \${JSON.stringify(data, null, 2)}\`, 'error');
-        }
-      } catch (error) {
-        log(\`❌ ERRO: \${error.message}\`, 'error');
-      }
-    }
-
-    async function deletePost() {
-      try {
-        log('🗑️ Deletando post...', 'info');
-        
-        const postsResponse = await fetch(\`\${API_URL}/posts\`);
-        const posts = await postsResponse.json();
-        
-        if (posts.length === 0) {
-          log('⚠️ Nenhum post encontrado para deletar!', 'warning');
-          return;
-        }
-        
-        // Deleta o último post da lista
-        const postId = posts[posts.length - 1].id;
-        const postTitle = posts[posts.length - 1].title;
-        
-        log(\`🗑️ Deletando post ID \${postId} (\${postTitle})...\`, 'info');
-        
-        const response = await fetch(\`\${API_URL}/posts/\${postId}\`, {
-          method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-          log(\`✅ Post deletado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
-        } else {
-          log(\`❌ Erro ao deletar post: \${JSON.stringify(data, null, 2)}\`, 'error');
+          log(\`❌ Erro ao deletar comentário: \${JSON.stringify(data, null, 2)}\`, 'error');
         }
       } catch (error) {
         log(\`❌ ERRO: \${error.message}\`, 'error');
