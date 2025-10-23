@@ -43,7 +43,6 @@ export class UsersService {
         username: true,
         email: true,
         createdAt: true,
-        updatedAt: true,
       },
     });
 
@@ -58,7 +57,6 @@ export class UsersService {
         username: true,
         email: true,
         createdAt: true,
-        updatedAt: true,
       },
     });
   }
@@ -72,8 +70,15 @@ export class UsersService {
         username: true,
         email: true,
         createdAt: true,
-        updatedAt: true,
-        posts: {
+        lojas: {
+          select: {
+            id: true,
+            nome: true,
+            descricao: true,
+            createdAt: true,
+          },
+        },
+        comments: {
           select: {
             id: true,
             title: true,
@@ -137,7 +142,6 @@ export class UsersService {
         username: true,
         email: true,
         createdAt: true,
-        updatedAt: true,
       },
     });
 

@@ -4,10 +4,19 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
-import { PostsModule } from './posts/posts.module';
+import { LojasModule } from './lojas/lojas.module';
+import { ProdutosModule } from './produtos/produtos.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, UsersModule, PostsModule],
+  imports: [
+    PrismaModule,
+    HealthModule,
+    UsersModule,
+    LojasModule,
+    ProdutosModule,
+    CommentsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

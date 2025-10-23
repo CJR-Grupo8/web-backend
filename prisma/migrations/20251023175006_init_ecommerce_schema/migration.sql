@@ -36,7 +36,7 @@ CREATE TABLE "Produto" (
 );
 
 -- CreateTable
-CREATE TABLE "Coment" (
+CREATE TABLE "Comment" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "content" TEXT,
@@ -45,7 +45,7 @@ CREATE TABLE "Coment" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "authorId" INTEGER NOT NULL,
 
-    CONSTRAINT "Coment_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -61,4 +61,4 @@ ALTER TABLE "Loja" ADD CONSTRAINT "Loja_donoId_fkey" FOREIGN KEY ("donoId") REFE
 ALTER TABLE "Produto" ADD CONSTRAINT "Produto_lojaId_fkey" FOREIGN KEY ("lojaId") REFERENCES "Loja"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Coment" ADD CONSTRAINT "Coment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
