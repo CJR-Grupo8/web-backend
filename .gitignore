@@ -67,6 +67,7 @@ web_modules/
 
 # dotenv environment variable files
 .env
+.env.docker
 .env.local
 .env.development.local
 .env.test.local
@@ -123,6 +124,13 @@ dist
 
 # TernJS port file
 .tern-port
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
