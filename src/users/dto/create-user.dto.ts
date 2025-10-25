@@ -16,6 +16,9 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(8)
+  @Matches(/[A-Z]/)
+  @Matches(/[a-z]/)
+  @Matches(/[0-9]/)
   password: string;
 }
