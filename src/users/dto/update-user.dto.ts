@@ -18,6 +18,9 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
 
   @IsOptional()
   @IsString()
-  @MinLength(6)
-  password?: string;
+  @MinLength(8)
+  @Matches(/[A-Z]/)
+  @Matches(/[a-z]/)
+  @Matches(/[0-9]/)
+  password: string;
 }
