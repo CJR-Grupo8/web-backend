@@ -313,7 +313,7 @@ export class AppService {
           fullName: \`Usuário Teste \${randomNum}\`,
           username: \`user\${randomNum}\`,
           email: \`user\${randomNum}@example.com\`,
-          password: 'senha123'
+          password: 'Senha@123'
         };
         
         log(\`👤 Criando usuário: \${user.username}...\`, 'info');
