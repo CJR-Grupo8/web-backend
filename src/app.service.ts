@@ -317,16 +317,24 @@ export class AppService {
       <h2>🧪 Testar API</h2>
       <div class="test-buttons">
         <button class="btn-success" onclick="testHealthCheck()">Health Check</button>
+        
         <button class="btn-primary" onclick="createUser()">Criar Usuário</button>
         <button class="btn-primary" onclick="listUsers()">Listar Usuários</button>
+        <button class="btn-danger" onclick="deleteUser()">🗑️ Deletar Usuário</button>
+        
         <button class="btn-primary" onclick="createLoja()">Criar Loja</button>
         <button class="btn-primary" onclick="listLojas()">Listar Lojas</button>
+        <button class="btn-danger" onclick="deleteLoja()">🗑️ Deletar Loja</button>
+        
         <button class="btn-primary" onclick="createProduto()">Criar Produto</button>
         <button class="btn-primary" onclick="listProdutos()">Listar Produtos</button>
+        <button class="btn-warning" onclick="updateProduto()">Atualizar Produto</button>
+        <button class="btn-danger" onclick="deleteProduto()">🗑️ Deletar Produto</button>
+        
         <button class="btn-primary" onclick="createComment()">Criar Comentário</button>
         <button class="btn-primary" onclick="listComments()">Listar Comentários</button>
-        <button class="btn-warning" onclick="updateProduto()">Atualizar Produto</button>
-        <button class="btn-danger" onclick="deleteComment()">Deletar Comentário</button>
+        <button class="btn-danger" onclick="deleteComment()">🗑️ Deletar Comentário</button>
+        
         <button class="btn-danger" onclick="clearOutput()">Limpar Console</button>
       </div>
       <div id="output">Console de saída:\n\nClique nos botões acima para testar a API...</div>
@@ -610,6 +618,102 @@ export class AppService {
           log(\`✅ Comentário deletado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
         } else {
           log(\`❌ Erro ao deletar comentário: \${JSON.stringify(data, null, 2)}\`, 'error');
+        }
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function deleteUser() {
+      try {
+        log('🗑️ Deletando usuário...', 'info');
+        
+        const usersResponse = await fetch(\`\${API_URL}/users\`);
+        const users = await usersResponse.json();
+        
+        if (users.length === 0) {
+          log('⚠️ Nenhum usuário encontrado para deletar!', 'warning');
+          return;
+        }
+        
+        const userId = users[users.length - 1].id;
+        const userName = users[users.length - 1].username;
+        
+        log(\`🗑️ Deletando usuário ID \${userId} (\${userName})...\`, 'info');
+        
+        const response = await fetch(\`\${API_URL}/users/\${userId}\`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          log(\`✅ Usuário deletado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+        } else {
+          log(\`❌ Erro ao deletar usuário: \${JSON.stringify(data, null, 2)}\`, 'error');
+        }
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function deleteLoja() {
+      try {
+        log('🗑️ Deletando loja...', 'info');
+        
+        const lojasResponse = await fetch(\`\${API_URL}/lojas\`);
+        const lojas = await lojasResponse.json();
+        
+        if (lojas.length === 0) {
+          log('⚠️ Nenhuma loja encontrada para deletar!', 'warning');
+          return;
+        }
+        
+        const lojaId = lojas[lojas.length - 1].id;
+        const lojaNome = lojas[lojas.length - 1].nome;
+        
+        log(\`🗑️ Deletando loja ID \${lojaId} (\${lojaNome})...\`, 'info');
+        
+        const response = await fetch(\`\${API_URL}/lojas/\${lojaId}\`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          log(\`✅ Loja deletada com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+        } else {
+          log(\`❌ Erro ao deletar loja: \${JSON.stringify(data, null, 2)}\`, 'error');
+        }
+      } catch (error) {
+        log(\`❌ ERRO: \${error.message}\`, 'error');
+      }
+    }
+
+    async function deleteProduto() {
+      try {
+        log('🗑️ Deletando produto...', 'info');
+        
+        const produtosResponse = await fetch(\`\${API_URL}/produtos\`);
+        const produtos = await produtosResponse.json();
+        
+        if (produtos.length === 0) {
+          log('⚠️ Nenhum produto encontrado para deletar!', 'warning');
+          return;
+        }
+        
+        const produtoId = produtos[produtos.length - 1].id;
+        const produtoNome = produtos[produtos.length - 1].nome;
+        
+        log(\`🗑️ Deletando produto ID \${produtoId} (\${produtoNome})...\`, 'info');
+        
+        const response = await fetch(\`\${API_URL}/produtos/\${produtoId}\`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          log(\`✅ Produto deletado com sucesso!\\n\${JSON.stringify(data, null, 2)}\`, 'success');
+        } else {
+          log(\`❌ Erro ao deletar produto: \${JSON.stringify(data, null, 2)}\`, 'error');
         }
       } catch (error) {
         log(\`❌ ERRO: \${error.message}\`, 'error');
