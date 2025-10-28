@@ -12,12 +12,12 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   fullName  String
-  username  String   @unique
-  email     String   @unique
+  username  String    @unique
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   lojas     Loja[]
   comments  Comment[]
 }
@@ -27,7 +27,7 @@ model Loja {
   nome      String
   descricao String?
   createdAt DateTime  @default(now())
-  dono      User      @relation(fields: [donoId], references: [id])
+  dono      User      @relation(fields: [donoId], references: [id], onDelete: Cascade)
   donoId    Int
   produtos  Produto[]
 }
@@ -40,7 +40,7 @@ model Produto {
   estoque   Int?     @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  loja      Loja     @relation(fields: [lojaId], references: [id])
+  loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
   lojaId    Int
 }
 
@@ -51,6 +51,6 @@ model Comment {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  Int
 }
