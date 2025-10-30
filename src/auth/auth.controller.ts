@@ -10,7 +10,6 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from 'src/auth/guards/auth-guard';
 import { LoginRequestBodyDto } from './dto/loginRequestBody.dto'; 
 import { UserToken } from './types/UserToken'; 
-import { STATUS_CODES } from 'http';
 import { Public } from './decorators/isPublic.decorator';
 
 
