@@ -14,7 +14,7 @@ import {
 import { LojasService } from './lojas.service';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
-// 1. Importe o seu decorador @Public
+
 import { Public } from '../auth/decorators/isPublic.decorator';
 
 @Controller('lojas')

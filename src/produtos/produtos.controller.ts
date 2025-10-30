@@ -14,7 +14,7 @@ import {
 import { ProdutosService } from './produtos.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
-// 1. Importe o seu decorador @Public
+
 import { Public } from '../auth/decorators/isPublic.decorator';
 
 @Controller('produtos')

@@ -14,7 +14,7 @@ import {
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-// 1. Importe o seu decorador @Public
+
 import { Public } from '../auth/decorators/isPublic.decorator';
 
 @Controller('comments')

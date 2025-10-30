@@ -7,12 +7,12 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guards/auth-guard';
 
-// Módulos que precisam ser registrados
+
 import { ProdutosModule } from './produtos/produtos.module';
 import { LojasModule } from './lojas/lojas.module';
 import { CommentsModule } from './comments/comments.module';
 import { HealthModule } from './health/health.module';
-import { PrismaModule } from './prisma/prisma.module'; // Importante para o Prisma
+import { PrismaModule } from './prisma/prisma.module'; 
 
 @Module({
   imports: [
@@ -24,17 +24,13 @@ import { PrismaModule } from './prisma/prisma.module'; // Importante para o Pris
     // 2. Módulos principais
     UsersModule, 
     AuthModule,
-    PrismaModule, // Adiciona o Prisma para estar disponível
+    PrismaModule, 
     HealthModule,
 
-    // 3. MódYLOS QUE FALTAVAM (A CAUSA DO ERRO 404)
-    //    Agora o Nest vai enxergar as rotas /produtos, /lojas, etc.
     ProdutosModule,
     LojasModule,
     CommentsModule,
     
-    // O JwtModule foi removido daqui, pois o AuthModule já o importa
-    // e configura. Importá-lo aqui é redundante.
   ],
   controllers: [AppController],
   providers: [

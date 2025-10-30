@@ -8,7 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
-// 1. Importe o seu AuthGuard
+
 import { AuthGuard } from './guards/auth-guard'; 
 
 @Module({
@@ -31,10 +31,9 @@ import { AuthGuard } from './guards/auth-guard';
     AuthService, 
     PrismaService, 
     UsersService,
-    AuthGuard, // 2. Adicione o AuthGuard aos providers
+    AuthGuard,
   ],
-  // 3. Exporte o AuthGuard e o JwtModule
-  //    Isso resolve o erro "UnknownDependenciesException"
+
   exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}
