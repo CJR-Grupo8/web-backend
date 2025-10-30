@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -47,6 +48,26 @@ export class UsersService {
     });
 
     return user;
+  }
+
+  async findByEmail(email: string): Promise<{ name: string; id: number; email: string; senha: string; createdAt: Date } | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      
+    });
+
+    if (!user) {
+      return null;
+    }
+
+   
+    return {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+      name: user.fullName,
+      senha: user.password,
+    };
   }
 
   async findAll() {
@@ -101,7 +122,6 @@ export class UsersService {
     // Check if user exists
     await this.findOne(id);
 
-    // If updating email or username, check for conflicts
     if (updateUserDto.email || updateUserDto.username) {
       const existingUser = await this.prisma.user.findFirst({
         where: {
@@ -127,7 +147,7 @@ export class UsersService {
       }
     }
 
-    // Hash password if provided
+    
     const data = { ...updateUserDto };
     if (updateUserDto.password) {
       data.password = await bcrypt.hash(updateUserDto.password, 12);
