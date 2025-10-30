@@ -7,7 +7,6 @@ import { Controller,
   HttpStatus, 
   HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from 'src/auth/guards/auth-guard';
 import { LoginRequestBodyDto } from './dto/loginRequestBody.dto'; 
 import { UserToken } from './types/UserToken'; 
 import { Public } from './decorators/isPublic.decorator';
