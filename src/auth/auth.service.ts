@@ -1,63 +1,52 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
-import { UsersService } from '../users/users.service'; 
-import * as bcrypt from 'bcrypt'; 
-import { UserPayload } from './types/UserPayload'; 
-import { JwtService } from '@nestjs/jwt'; 
-import { UserToken } from './types/UserToken'; 
-import { LoginRequestBodyDto } from './dto/loginRequestBody.dto'; 
-import { User } from '@prisma/client'; 
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
+import { UserPayload } from './types/UserPayload';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { UserToken } from './types/UserToken';
+import { LoginRequestBodyDto } from './dto/loginRequestBody.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(
-    
-        private readonly usersService: UsersService,
+    constructor(private readonly userService: UsersService,
         private readonly jwtService: JwtService,
+        private readonly configService: ConfigService,
     ) {}
+    
+    async login(loginRequestBody: LoginRequestBodyDto): Promise<UserToken> {
 
-   
-
-    async validateUser(email: string, pass: string): Promise<Omit<User, 'senha'> | null> {
- 
-        const user = await this.usersService.findByEmail(email);
-
-        if (user) {
-         
-            const isPasswordValid = await bcrypt.compare(pass, user.senha);
-
-            if (isPasswordValid) {
-              
-                const { senha, ...result } = user;
-                return result;
-            }
+        const user = await this.validateUser(loginRequestBody.email, loginRequestBody.password);
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
         }
-     
-        return null;
+
+        const payload: UserPayload = { email: user.email, sub: String(user.id) };
+       
+        const jwtToken = this.jwtService.sign(payload, {
+            secret: this.configService.get('JWT_SECRET'),
+            expiresIn: '1d',
+        });
+
+        return { 
+            access_token: this.jwtService.sign(payload) };
     }
 
-   
-    async login(loginRequestBody: LoginRequestBodyDto): Promise<UserToken> {
-      
-        const user = await this.validateUser(loginRequestBody.email, loginRequestBody.password);
+    //metodo de validação
+    async validateUser(email: string, senha: string) {
+        const user = await this.userService.findByEmail(email);
 
-        
-        if (!user) {
-            throw new UnauthorizedException('Usuário ou senha incorretos');
-        }
+        if (user) {
+            const isPasswordValid = await bcrypt.compare(senha, user.senha);
 
-      
-        const payload: UserPayload = {
-            sub: user.id, 
-            email: user.email,
-            
-        };
+            if (isPasswordValid) {
+                return {
+                    ...user,
+                    senha: undefined,
+                };
+            } 
+        } 
 
-
-        const jwtToken = await this.jwtService.signAsync(payload);
-
-        // 5. Retorna o token para o frontend
-        return {
-            access_token: jwtToken,
-        };
+        return null;
     }
 }
