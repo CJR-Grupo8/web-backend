@@ -29,20 +29,28 @@ export class AuthService {
         });
 
         return { 
-            access_token: this.jwtService.sign(payload) };
+            access_token: jwtToken,
+            user: {
+                id: user.id,
+                fullName: user.fullName,
+                username: user.username,
+                email: user.email,
+                createdAt: user.createdAt.toISOString(),
+            }
+        };
     }
 
     //metodo de validação
-    async validateUser(email: string, senha: string) {
+    async validateUser(email: string, password: string) {
         const user = await this.userService.findByEmail(email);
 
         if (user) {
-            const isPasswordValid = await bcrypt.compare(senha, user.senha);
+            const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (isPasswordValid) {
                 return {
                     ...user,
-                    senha: undefined,
+                    password: undefined,
                 };
             } 
         } 

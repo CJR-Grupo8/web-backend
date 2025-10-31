@@ -8,6 +8,6 @@ export class LoginRequestBodyDto {
 
   @IsString()
   @IsNotEmpty({ message: 'A senha não pode estar vazia.' })
-  @MinLength(6, { message: 'A senha precisa ter no mínimo 6 caracteres.'}) 
+  @MinLength(8, { message: 'A senha precisa ter no mínimo 8 caracteres.'}) 
   password: string;
 }
