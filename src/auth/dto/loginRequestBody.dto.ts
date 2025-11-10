@@ -1,13 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginRequestBodyDto {
-  @IsEmail({}, { message: 'Por favor, forneça um email válido.' })
-  @IsNotEmpty({ message: 'O email não pode estar vazio.' })
+  @IsEmail({}, { message: 'E-mail inválido.' })
+  @IsNotEmpty({ message: 'Informe o e-mail.' })
   email: string;
 
-
-  @IsString()
-  @IsNotEmpty({ message: 'A senha não pode estar vazia.' })
-  @MinLength(8, { message: 'A senha precisa ter no mínimo 8 caracteres.'}) 
+  @IsString({ message: 'Senha inválida.' })
+  @IsNotEmpty({ message: 'Informe a senha.' })
   password: string;
 }
