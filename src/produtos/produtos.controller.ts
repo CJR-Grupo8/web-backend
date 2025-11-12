@@ -10,18 +10,24 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ProdutosService } from './produtos.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 
 import { Public } from '../auth/decorators/isPublic.decorator';
+import { AuthGuard } from 'src/auth/guards/auth-guard';
+import { IslojaOwnerGuard } from 'src/auth/guards/is-loja-owner.guard';
+import { Request } from 'express';
 
 @Controller('produtos')
 export class ProdutosController {
   constructor(private readonly produtosService: ProdutosService) {}
 
-  // ROTA PROTEGIDA (só admin pode criar)
+  // ROTA PROTEGIDA (só dono da loja pode criar)
+  @UseGuards(AuthGuard,IslojaOwnerGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProdutoDto: CreateProdutoDto) {
@@ -45,7 +51,8 @@ export class ProdutosController {
     return this.produtosService.findOne(id);
   }
 
-  // ROTA PROTEGIDA (só admin pode atualizar)
+  // ROTA PROTEGIDA (só dono da loja pode atualizar produto)
+  @UseGuards(AuthGuard,IslojaOwnerGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -54,7 +61,8 @@ export class ProdutosController {
     return this.produtosService.update(id, updateProdutoDto);
   }
 
-  // ROTA PROTEGIDA (só admin pode deletar)
+  // ROTA PROTEGIDA (só dono da loja pode deletar produto)
+  @UseGuards(AuthGuard,IslojaOwnerGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
