@@ -1,7 +1,7 @@
 # 🧰 Projeto Backend – Grupo 8 – Processo Trainee CJR
 
 > Repositório responsável pelo backend da aplicação do grupo 8, voltado ao processo trainee da **CJR**.  
-> Tecnologias previstas: **Node.js**, **Nest.js**, **PostgreSQL**
+> Tecnologias previstas: **Node.js**, **Next.js**, **PostgreSQL**
 >  
 > Este README serve como base inicial — detalhes da lógica da aplicação serão definidos à medida que o projeto evolui.
 
@@ -39,7 +39,7 @@
 ## 🛠️ Tecnologias
 
 - Node.js 
-- Nest.js 
+- Next.js 
 - PostgreSQL
 
 ---
@@ -52,16 +52,20 @@ git clone https://github.com/CJR-Grupo8/web-backend.git
 cd web-backend
 ```
 
-### 2. Instalar dependências  
+### 2. Instalar dependências 
+Instale o Node (v.20+)
 ```bash
 npm install
+```
+Instale o PostgreSQL e crie o banco:
+```sql
+   CREATE DATABASE web_backend;
 ```
 
 ### 3. Criar .env local
 Criar um .env baseado no molde da .env.example
-```bash
-cp .env.example .env
-```
+> Substitua com sua senha do PostgreSQL
+
 >⚠️ **Importante:** NÃO coloque informações da **.env** dentro do molde **.env.example**, pois esse sim sempre será visível no repositório!
 
 ### 4. Rodar servidor
