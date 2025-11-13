@@ -1,25 +1,34 @@
-import { IsNotEmpty, IsOptional, IsString, IsNumber, IsInt, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, Min, IsOptional } from "class-validator";
 
-export class CreateProdutoDto {
+export class CreateProdutoDto{
   @IsString()
   @IsNotEmpty()
   nome: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
+  descricao: string;
+
+  @IsNumber()
   @Min(0)
   preco: number;
 
   @IsString()
-  @IsOptional()
-  descricao?: string;
-
-  @IsInt()
-  @IsOptional()
-  @Min(0)
-  estoque?: number;
-
-  @IsInt()
   @IsNotEmpty()
+  imageUrl: string;
+
+  @IsString()
+  @IsNotEmpty()
+  categoria: string;
+
+  @IsNumber()
+  @Min(0)
+  quantidade: number;
+  
+  @IsOptional()
+  @IsNumber()
+  avaliacao?: number;
+
+  @IsNumber()
   lojaId: number;
 }

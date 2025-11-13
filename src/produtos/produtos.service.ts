@@ -8,7 +8,7 @@ export class ProdutosService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProdutoDto: CreateProdutoDto) {
-    // Verify loja exists
+    // verifica se a loja existe
     const loja = await this.prisma.loja.findUnique({
       where: { id: createProdutoDto.lojaId },
     });
@@ -84,7 +84,7 @@ export class ProdutosService {
   }
 
   async update(id: number, updateProdutoDto: UpdateProdutoDto) {
-    // Check if produto exists
+    // verifica se o produto existe
     await this.findOne(id);
 
     const produto = await this.prisma.produto.update({
@@ -104,7 +104,7 @@ export class ProdutosService {
   }
 
   async remove(id: number) {
-    // Check if produto exists
+    // verifica se o produto existe
     await this.findOne(id);
 
     await this.prisma.produto.delete({
