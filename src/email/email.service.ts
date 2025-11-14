@@ -86,3 +86,4 @@ export class EmailService{
         return {message: 'Senha alterada com sucesso!'};
     }
 }
+
