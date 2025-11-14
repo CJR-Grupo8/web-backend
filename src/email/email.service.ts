@@ -3,14 +3,14 @@ import { PrismaService } from "src/prisma/prisma.service";
 import * as nodemailer from 'nodemailer';
 import { hash, randomUUID, secureHeapUsed } from 'crypto';
 import * as bcrypt from 'bcrypt';
-import { from, Subject } from "rxjs";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class EmailService{
     private readonly logger = new Logger(EmailService.name);
     private transporter: nodemailer.Transporter;
 
-    constructor(private prisma: PrismaService){
+    constructor(private prisma: PrismaService , private config : ConfigService){
         //nodemailer trasnporter configurado via .env
         this.transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
@@ -84,6 +84,25 @@ export class EmailService{
         });
         this.logger.debug(`Password reset for user ${user.id}`);
         return {message: 'Senha alterada com sucesso!'};
+    }
+
+    //envio do email SMTP
+
+    private async sendEmail({ to, subject, text}){
+        const transporter = nodemailer.createTransport({
+            host: this.config.get('EMAIL_HOST'),
+            port: Number(this.config.get('EMAIL_USER')),
+            auth: {
+                user: this.config.get('EMAIL_USER'),
+                pass: this.config.get('EMAIL_PASS'),
+            },
+        });
+        await transporter.sendEmail({
+            from: this.config.get('EMAIL_FROM'),
+            to,
+            subject,
+            text,
+        });
     }
 }
 
