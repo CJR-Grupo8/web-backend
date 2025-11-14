@@ -1,8 +1,9 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as nodemailer from 'nodemailer';
-import { randomUUID, secureHeapUsed } from 'crypto';
+import { hash, randomUUID, secureHeapUsed } from 'crypto';
 import * as bcrypt from 'bcrypt';
+import { from, Subject } from "rxjs";
 
 @Injectable()
 export class EmailService{
@@ -24,4 +25,64 @@ export class EmailService{
 
 
     // gerar um token, salvar no usuario  e envia email com link
+
+    async forgotPassword(email:string){
+        const user = await this.prisma.user.findUnique({where: { email } });
+        if(!user){
+            throw new NotFoundException('Usúario não encontrado');
+        }
+
+        const token = randomUUID();
+        const expires = new Date(Date.now() + 1000 *60 *15); //15 minutos para expirar o forgotpassword
+        await this.prisma.user.update({
+            where: {id: user.id},
+            data: {
+                passwordResetExpires: expires,
+                passwordResetToken: token,
+            },
+        });
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+
+        //enviar o email, pode falhar(capturar o erro se preciso)
+        const info = await this.transporter.sendMail({
+            from: `"Suporte" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Redefinição de senha',
+            html: `
+            <p>Você solicitou redefinição de senha.</p>
+            <p>Clique no link abaixo para redefinir (válido por 15 minutos):</p>
+            <p><a href="${resetUrl}">${resetUrl}</a></p>
+            <p>Se você não solicitou, ignore este e-mail.</p>
+           `,
+        });
+        this.logger.debug(`Password reset email sent to ${email}: ${info.messageId}`);
+        return { message: 'E-mail de recuperação enviado'};
+    }
+
+    //valida token e altera a senha 
+    async resetPassword(token: string, newPassword: string){
+        const user = await this.prisma.user.findFirst({
+            where: {
+                passwordResetToken: token,
+                passwordResetExpires: {gt: new Date()},
+            },
+        });
+
+        if(!user){
+            throw new BadRequestException('Token inválido ou expirado');
+        }
+
+        const hashed = await bcrypt.hash(newPassword, 10);
+
+        await this.prisma.user.update({
+            where: {id: user.id},
+            data: {
+                password: hashed,
+                passwordResetExpires:null,
+                passwordResetToken:null,
+            },
+        });
+        this.logger.debug(`Password reset for user ${user.id}`);
+        return {message: 'Senha alterada com sucesso!'};
+    }
 }
