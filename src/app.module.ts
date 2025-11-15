@@ -17,7 +17,6 @@ import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
-    EmailModule,
     // 1. ConfigModule primeiro e global
     ConfigModule.forRoot({
       isGlobal: true,
@@ -28,6 +27,7 @@ import { EmailModule } from './email/email.module';
     AuthModule,
     PrismaModule, 
     HealthModule,
+    EmailModule,
 
     ProdutosModule,
     LojasModule,
