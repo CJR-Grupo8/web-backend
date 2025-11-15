@@ -1,7 +1,8 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from "@nestjs/common";
+// ...existing code...
+import { Injectable, Logger, NotFoundException, BadRequestException, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as nodemailer from 'nodemailer';
-import { hash, randomUUID, secureHeapUsed } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from "@nestjs/config";
 
@@ -11,60 +12,72 @@ export class EmailService{
     private transporter: nodemailer.Transporter;
 
     constructor(private prisma: PrismaService , private config : ConfigService){
-        //nodemailer trasnporter configurado via .env
+        // nodemailer transporter configurado via ConfigService/.env
         this.transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
-            port: Number(process.env.EMAIL_PORT) || 587,
-            secure: process.env.EMAIL_SECURE === 'true',
+            host: this.config.get<string>('EMAIL_HOST'),
+            port: Number(this.config.get<number>('EMAIL_PORT')) || 587,
+            secure: this.config.get<string>('EMAIL_SECURE') === 'true',
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+                user: this.config.get<string>('EMAIL_USER'),
+                pass: this.config.get<string>('EMAIL_PASS'),
             },
         });
     }
 
-
-    // gerar um token, salvar no usuario  e envia email com link
-
-    async forgotPassword(email:string){
-        const user = await this.prisma.user.findUnique({where: { email } });
+    // gerar um token (envia o token bruto por email) e salvar apenas o hash no banco
+    async forgotPassword(email:string): Promise<{message:string}>{
+        const user = await this.prisma.user.findUnique({ where: { email } });
         if(!user){
-            throw new NotFoundException('Usúario não encontrado');
+            throw new NotFoundException('Usuário não encontrado');
         }
 
         const token = randomUUID();
-        const expires = new Date(Date.now() + 1000 *60 *15); //15 minutos para expirar o forgotpassword
+        const tokenHash = createHash('sha256').update(token).digest('hex');
+
+        const expiresMs = Number(this.config.get<number>('RESET_TOKEN_EXPIRES_MS')) || (1000 * 60 * 15); // fallback 15 min
+        const expires = new Date(Date.now() + expiresMs);
+
         await this.prisma.user.update({
-            where: {id: user.id},
+            where: { id: user.id },
             data: {
                 passwordResetExpires: expires,
-                passwordResetToken: token,
+                passwordResetToken: tokenHash,
             },
         });
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
 
-        //enviar o email, pode falhar(capturar o erro se preciso)
-        const info = await this.transporter.sendMail({
-            from: `"Suporte" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-            to: email,
-            subject: 'Redefinição de senha',
-            html: `
+        const resetUrl = `${this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000'}/reset-password?token=${token}`;
+
+        const html = `
             <p>Você solicitou redefinição de senha.</p>
-            <p>Clique no link abaixo para redefinir (válido por 15 minutos):</p>
+            <p>Clique no link abaixo para redefinir (válido por ${Math.round(expiresMs/60000)} minutos):</p>
             <p><a href="${resetUrl}">${resetUrl}</a></p>
             <p>Se você não solicitou, ignore este e-mail.</p>
-           `,
-        });
-        this.logger.debug(`Password reset email sent to ${email}: ${info.messageId}`);
-        return { message: 'E-mail de recuperação enviado'};
+        `;
+
+        try {
+            const info = await this.transporter.sendMail({
+                from: this.config.get<string>('EMAIL_FROM') || `"Suporte" <${this.config.get<string>('EMAIL_USER')}>`,
+                to: email,
+                subject: 'Redefinição de senha',
+                html,
+            });
+            this.logger.debug(`Password reset email sent to ${email}: ${info.messageId}`);
+        } catch (err) {
+            this.logger.error(`Failed to send password reset email to ${email}`, err as any);
+            throw new InternalServerErrorException('Erro ao enviar e-mail de recuperação');
+        }
+
+        return { message: 'E-mail de recuperação enviado' };
     }
 
-    //valida token e altera a senha 
-    async resetPassword(token: string, newPassword: string){
+    // valida token (comparando hash) e altera a senha
+    async resetPassword(token: string, newPassword: string): Promise<{message:string}>{
+        const tokenHash = createHash('sha256').update(token).digest('hex');
+
         const user = await this.prisma.user.findFirst({
             where: {
-                passwordResetToken: token,
-                passwordResetExpires: {gt: new Date()},
+                passwordResetToken: tokenHash,
+                passwordResetExpires: { gt: new Date() },
             },
         });
 
@@ -75,34 +88,33 @@ export class EmailService{
         const hashed = await bcrypt.hash(newPassword, 10);
 
         await this.prisma.user.update({
-            where: {id: user.id},
+            where: { id: user.id },
             data: {
                 password: hashed,
-                passwordResetExpires:null,
-                passwordResetToken:null,
+                passwordResetExpires: null,
+                passwordResetToken: null,
             },
         });
+
         this.logger.debug(`Password reset for user ${user.id}`);
-        return {message: 'Senha alterada com sucesso!'};
+        return { message: 'Senha alterada com sucesso!' };
     }
 
-    //envio do email SMTP
-
-    private async sendEmail({ to, subject, text}){
-        const transporter = nodemailer.createTransport({
-            host: this.config.get('EMAIL_HOST'),
-            port: Number(this.config.get('EMAIL_USER')),
-            auth: {
-                user: this.config.get('EMAIL_USER'),
-                pass: this.config.get('EMAIL_PASS'),
-            },
-        });
-        await transporter.sendEmail({
-            from: this.config.get('EMAIL_FROM'),
-            to,
-            subject,
-            text,
-        });
+    // utilitário de envio reutilizando o transporter já criado
+    private async sendEmail(payload: { to: string; subject: string; text?: string; html?: string; }){
+        try {
+            const info = await this.transporter.sendMail({
+                from: this.config.get<string>('EMAIL_FROM') || this.config.get<string>('EMAIL_USER'),
+                to: payload.to,
+                subject: payload.subject,
+                text: payload.text,
+                html: payload.html,
+            });
+            this.logger.debug(`Email enviado para ${payload.to}: ${info.messageId}`);
+            return info;
+        } catch (err) {
+            this.logger.error('Erro no sendEmail', err as any);
+            throw new InternalServerErrorException('Erro ao enviar e-mail');
+        }
     }
 }
-
