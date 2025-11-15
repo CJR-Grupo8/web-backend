@@ -13,6 +13,7 @@ import { LojasModule } from './lojas/lojas.module';
 import { CommentsModule } from './comments/comments.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module'; 
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     PrismaModule, 
     HealthModule,
+    EmailModule,
 
     ProdutosModule,
     LojasModule,

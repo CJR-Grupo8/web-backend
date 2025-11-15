@@ -20,6 +20,8 @@ model User {
   createdAt DateTime  @default(now())
   lojas     Loja[]
   comments  Comment[]
+  passwordResetToken String?
+  passwordResetExpires DateTime?
 }
 
 model Loja {
