@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -24,8 +26,12 @@ export class ReviewsController {
   // ROTA PROTEGIDA (só usuários logados podem avaliar)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.create(createReviewDto);
+  create(@Body() createReviewDto: CreateReviewDto, @Request() req) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    return this.reviewsService.create(createReviewDto, userId);
   }
 
   // ROTA PÚBLICA (qualquer um pode ver as avaliações)
@@ -65,14 +71,23 @@ export class ReviewsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateReviewDto: UpdateReviewDto,
+    @Request() req,
   ) {
-    return this.reviewsService.update(id, updateReviewDto);
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    return this.reviewsService.update(id, updateReviewDto, userId);
   }
 
   // ROTA PROTEGIDA (só o autor logado pode deletar sua avaliação)
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.reviewsService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    return this.reviewsService.remove(id, userId);
   }
 }

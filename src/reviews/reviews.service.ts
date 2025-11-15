@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -7,17 +7,17 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createReviewDto: CreateReviewDto) {
+  async create(createReviewDto: CreateReviewDto, authorId: number) {
     // Validar que pelo menos um ID (loja ou produto) foi fornecido
     if (!createReviewDto.lojaId && !createReviewDto.produtoId) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'lojaId ou produtoId deve ser fornecido',
       );
     }
 
     // Não permitir ambos ao mesmo tempo
     if (createReviewDto.lojaId && createReviewDto.produtoId) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'Forneça apenas lojaId OU produtoId, não ambos',
       );
     }
@@ -50,17 +50,20 @@ export class ReviewsService {
 
     // Verificar se o autor existe
     const author = await this.prisma.user.findUnique({
-      where: { id: createReviewDto.authorId },
+      where: { id: authorId },
     });
 
     if (!author) {
       throw new NotFoundException(
-        `User with ID ${createReviewDto.authorId} not found`,
+        `User with ID ${authorId} not found`,
       );
     }
 
     const review = await this.prisma.review.create({
-      data: createReviewDto,
+      data: {
+        ...createReviewDto,
+        authorId,
+      },
       include: {
         loja: createReviewDto.lojaId ? {
           select: {
@@ -188,12 +191,41 @@ export class ReviewsService {
     return this.findAll(undefined, undefined, authorId);
   }
 
-  async update(id: number, updateReviewDto: UpdateReviewDto) {
+  async update(id: number, updateReviewDto: UpdateReviewDto, userId: number) {
     // Verificar se a avaliação existe
-    await this.findOne(id);
+    const existingReview = await this.findOne(id);
+
+    // Verificar se o usuário é o autor da avaliação
+    if (existingReview.authorId !== userId) {
+      throw new NotFoundException(
+        'You are not authorized to update this review',
+      );
+    }
+
+    // Calcular os valores finais após o update
+    const finalLojaId = updateReviewDto.lojaId !== undefined 
+      ? updateReviewDto.lojaId 
+      : existingReview.lojaId;
+    const finalProdutoId = updateReviewDto.produtoId !== undefined 
+      ? updateReviewDto.produtoId 
+      : existingReview.produtoId;
+
+    // Validar exclusividade mútua: não permitir ambos lojaId e produtoId
+    if (finalLojaId && finalProdutoId) {
+      throw new BadRequestException(
+        'Uma avaliação não pode ter lojaId e produtoId ao mesmo tempo. Forneça null para um deles.',
+      );
+    }
+
+    // Validar que pelo menos um ID está presente
+    if (!finalLojaId && !finalProdutoId) {
+      throw new BadRequestException(
+        'Uma avaliação deve ter lojaId OU produtoId',
+      );
+    }
 
     // Validar lojaId se estiver sendo atualizado
-    if (updateReviewDto.lojaId !== undefined) {
+    if (updateReviewDto.lojaId !== undefined && updateReviewDto.lojaId !== null) {
       const loja = await this.prisma.loja.findUnique({
         where: { id: updateReviewDto.lojaId },
       });
@@ -206,7 +238,7 @@ export class ReviewsService {
     }
 
     // Validar produtoId se estiver sendo atualizado
-    if (updateReviewDto.produtoId !== undefined) {
+    if (updateReviewDto.produtoId !== undefined && updateReviewDto.produtoId !== null) {
       const produto = await this.prisma.produto.findUnique({
         where: { id: updateReviewDto.produtoId },
       });
@@ -264,9 +296,16 @@ export class ReviewsService {
     return review;
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
     // Verificar se a avaliação existe
-    await this.findOne(id);
+    const existingReview = await this.findOne(id);
+
+    // Verificar se o usuário é o autor da avaliação
+    if (existingReview.authorId !== userId) {
+      throw new NotFoundException(
+        'You are not authorized to delete this review',
+      );
+    }
 
     await this.prisma.review.delete({
       where: { id },

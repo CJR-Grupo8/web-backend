@@ -22,8 +22,4 @@ export class CreateReviewDto {
   @ValidateIf((o) => !o.lojaId)
   @IsNotEmpty({ message: 'lojaId ou produtoId deve ser fornecido' })
   produtoId?: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  authorId: number;
 }
