@@ -21,6 +21,8 @@ model User {
   lojas     Loja[]
   comments  Comment[]
   reviews   Review[]
+  passwordResetToken String?
+  passwordResetExpires DateTime?
 }
 
 model Loja {
