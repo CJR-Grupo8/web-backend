@@ -8,12 +8,12 @@ export class EmailController{
     constructor(private readonly emailService: EmailService){}
 
     @Post('forgot-password')
-    forgotPassword(@Body() dto: forgotPasswordDto){
+    forgotPassword(@Body() dto: forgotPasswordDto): Promise<{message:string}>{
         return this.emailService.forgotPassword(dto.email);
     }
 
     @Post('reset-password')
-    resetPasswrod(@Body() dto: resetPasswordDto){
+    resetPasswrod(@Body() dto: resetPasswordDto): Promise<{message:string}>{
         return this.emailService.resetPassword(dto.token, dto.newPassword);
     }
 }
