@@ -12,4 +12,16 @@ export class UpdateReviewDto extends PartialType(CreateReviewDto) {
   @IsOptional()
   @IsString()
   comment?: string;
+
+  @IsOptional()
+  @IsInt()
+  lojaId?: number;
+
+  @IsOptional()
+  @IsInt()
+  produtoId?: number;
+
+  @IsOptional()
+  @IsInt()
+  authorId?: number;
 }

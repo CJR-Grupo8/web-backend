@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString, Min, Max } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min, Max, ValidateIf } from 'class-validator';
 
 export class CreateReviewDto {
   @IsInt()
@@ -12,8 +12,16 @@ export class CreateReviewDto {
   comment?: string;
 
   @IsInt()
-  @IsNotEmpty()
-  lojaId: number;
+  @IsOptional()
+  @ValidateIf((o) => !o.produtoId)
+  @IsNotEmpty({ message: 'lojaId ou produtoId deve ser fornecido' })
+  lojaId?: number;
+
+  @IsInt()
+  @IsOptional()
+  @ValidateIf((o) => !o.lojaId)
+  @IsNotEmpty({ message: 'lojaId ou produtoId deve ser fornecido' })
+  produtoId?: number;
 
   @IsInt()
   @IsNotEmpty()
