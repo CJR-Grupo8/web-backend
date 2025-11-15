@@ -20,6 +20,7 @@ model User {
   createdAt DateTime  @default(now())
   lojas     Loja[]
   comments  Comment[]
+  reviews   Review[]
   passwordResetToken String?
   passwordResetExpires DateTime?
 }
@@ -32,6 +33,7 @@ model Loja {
   dono      User      @relation(fields: [donoId], references: [id], onDelete: Cascade)
   donoId    Int
   produtos  Produto[]
+  reviews   Review[]
 }
 
 model Produto {
@@ -44,6 +46,7 @@ model Produto {
   updatedAt DateTime @updatedAt
   loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
   lojaId    Int
+  reviews   Review[]
 }
 
 model Comment {
@@ -55,4 +58,18 @@ model Comment {
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  Int
+}
+
+model Review {
+  id         Int       @id @default(autoincrement())
+  rating     Int       // 1 a 5 estrelas
+  comment    String?   // Avaliação da loja ou produto
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  loja       Loja?     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  lojaId     Int?
+  produto    Produto?  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  produtoId  Int?
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId   Int
 }

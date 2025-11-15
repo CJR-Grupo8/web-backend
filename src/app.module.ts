@@ -11,6 +11,7 @@ import { AuthGuard } from './auth/guards/auth-guard';
 import { ProdutosModule } from './produtos/produtos.module';
 import { LojasModule } from './lojas/lojas.module';
 import { CommentsModule } from './comments/comments.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module'; 
 import { EmailModule } from './email/email.module';
@@ -32,6 +33,7 @@ import { EmailModule } from './email/email.module';
     ProdutosModule,
     LojasModule,
     CommentsModule,
+    ReviewsModule,
     
   ],
   controllers: [AppController],
