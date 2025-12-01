@@ -15,13 +15,17 @@ export class EmailService{
         // nodemailer transporter configurado via ConfigService/.env
         this.transporter = nodemailer.createTransport({
             host: this.config.get<string>('EMAIL_HOST'),
-            port: Number(this.config.get<number>('EMAIL_PORT')) || 587,
+            port: Number(this.config.get<number>('EMAIL_PORT')) || 465,
             secure: this.config.get<string>('EMAIL_SECURE') === 'true',
             auth: {
                 user: this.config.get<string>('EMAIL_USER'),
                 pass: this.config.get<string>('EMAIL_PASS'),
             },
         });
+
+        this.transporter.verify()
+            .then(() => this.logger.log('Gmail SMTP conectado com sucesso'))
+            .catch(err => this.logger.error('Erro ao conectar no gmail SMPT', err));
     }
 
     // gerar um token (envia o token bruto por email) e salvar apenas o hash no banco
