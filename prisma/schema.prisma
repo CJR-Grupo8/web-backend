@@ -29,6 +29,7 @@ model Loja {
   id        Int       @id @default(autoincrement())
   nome      String
   descricao String?
+  categoria String?
   createdAt DateTime  @default(now())
   dono      User      @relation(fields: [donoId], references: [id], onDelete: Cascade)
   donoId    Int

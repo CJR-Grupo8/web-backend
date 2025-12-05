@@ -9,6 +9,10 @@ export class CreateLojaDto {
   @IsOptional()
   descricao?: string;
 
+  @IsString()
+  @IsOptional()
+  categoria?: string;
+
   @IsInt()
   @IsNotEmpty()
   donoId: number;

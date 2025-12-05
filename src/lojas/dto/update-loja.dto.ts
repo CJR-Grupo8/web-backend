@@ -10,4 +10,8 @@ export class UpdateLojaDto extends PartialType(CreateLojaDto) {
   @IsOptional()
   @IsString()
   descricao?: string;
+
+  @IsOptional()
+  @IsString()
+  categoria?: string;
 }
