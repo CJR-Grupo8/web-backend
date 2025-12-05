@@ -13,6 +13,8 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+// 1. Importação do novo DTO
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 import { Public } from '../auth/decorators/isPublic.decorator';
 
@@ -36,6 +38,16 @@ export class UsersController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
   }
+
+  //trocaR senha
+  @Patch(':id/password')
+  changePassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(id, changePasswordDto);
+  }
+  // -------------------------------------
 
   @Patch(':id')
   update(
