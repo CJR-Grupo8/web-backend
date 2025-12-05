@@ -7,7 +7,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-// 1. Importação do novo DTO
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../generated/prisma';
@@ -17,7 +16,6 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    // Check if user already exists
     const existingUser = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -36,10 +34,8 @@ export class UsersService {
       }
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
 
-    // Create user
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
@@ -50,6 +46,7 @@ export class UsersService {
         fullName: true,
         username: true,
         email: true,
+        avatar: true, // <--- ADICIONADO AQUI
         createdAt: true,
       },
     });
@@ -72,6 +69,7 @@ export class UsersService {
         fullName: true,
         username: true,
         email: true,
+        avatar: true, // <--- ADICIONADO AQUI
         createdAt: true,
       },
     });
@@ -85,6 +83,7 @@ export class UsersService {
         fullName: true,
         username: true,
         email: true,
+        avatar: true, // <--- ADICIONADO AQUI
         createdAt: true,
         lojas: {
           select: {
@@ -113,11 +112,9 @@ export class UsersService {
     return user;
   }
 
-  // ---mudança de senha segura
   async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
     const { oldPassword, newPassword } = changePasswordDto;
 
-    // 1. Busca o usuário no banco 
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -126,17 +123,14 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // se senha antiga bate com a do banco
     const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Senha antiga incorreta');
     }
 
-    // Criptografa a NOVA senha
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-    //Salva a nova senha no banco
     await this.prisma.user.update({
       where: { id },
       data: {
@@ -146,7 +140,6 @@ export class UsersService {
 
     return { message: 'Senha alterada com sucesso' };
   }
-  // --------------------------------------------
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     // Check if user exists
@@ -177,10 +170,15 @@ export class UsersService {
       }
     }
 
-    const data = { ...updateUserDto };
+    const data: any = { ...updateUserDto };
+    
+    // Se a senha foi enviada no update (opcional), faz hash
     if (updateUserDto.password) {
       data.password = await bcrypt.hash(updateUserDto.password, 12);
     }
+
+    // O campo avatar já vem pronto no DTO graças ao Controller, 
+    // então não precisamos fazer nada extra com ele aqui, só passar o 'data'.
 
     const user = await this.prisma.user.update({
       where: { id },
@@ -190,6 +188,7 @@ export class UsersService {
         fullName: true,
         username: true,
         email: true,
+        avatar: true, // <--- ADICIONADO AQUI (O MAIS IMPORTANTE)
         createdAt: true,
       },
     });
@@ -198,7 +197,6 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    // Check if user exists
     await this.findOne(id);
 
     await this.prisma.user.delete({
