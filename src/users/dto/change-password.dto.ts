@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsNotEmpty } from 'class-validator';
+import { IsString, MinLength, IsNotEmpty, Matches } from 'class-validator';
 
 export class ChangePasswordDto {
   @IsString()
@@ -6,7 +6,9 @@ export class ChangePasswordDto {
   oldPassword: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
+  @MinLength(8, { message: 'A senha deve ter no mínimo 8 caracteres' })
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, { 
+    message: 'A senha deve conter pelo menos uma letra maiúscula, uma minúscula e um número' 
+  })
   newPassword: string;
 }
