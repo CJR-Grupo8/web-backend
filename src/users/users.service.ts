@@ -133,6 +133,11 @@ export class UsersService {
       throw new BadRequestException('Senha antiga incorreta');
     }
 
+    // Verifica se a nova senha é diferente da antiga
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      throw new BadRequestException('A nova senha deve ser diferente da senha atual');
+    }
     // Criptografa a NOVA senha
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
