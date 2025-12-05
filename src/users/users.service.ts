@@ -83,7 +83,7 @@ export class UsersService {
         fullName: true,
         username: true,
         email: true,
-        avatar: true, // <--- ADICIONADO AQUI
+        avatar: true,
         createdAt: true,
         lojas: {
           select: {
@@ -107,6 +107,25 @@ export class UsersService {
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return user;
+  }
+
+  async findByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        avatar: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with username ${username} not found`);
     }
 
     return user;
