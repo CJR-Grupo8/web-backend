@@ -39,7 +39,7 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  //trocaR senha
+  // Trocar senha
   @Patch(':id/password')
   changePassword(
     @Param('id', ParseIntPipe) id: number,
