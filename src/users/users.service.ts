@@ -1,7 +1,14 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { 
+  Injectable, 
+  ConflictException, 
+  NotFoundException, 
+  BadRequestException 
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+// 1. Importação do novo DTO
+import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../generated/prisma';
 
@@ -106,6 +113,46 @@ export class UsersService {
     return user;
   }
 
+  // ---mudança de senha segura
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    const { oldPassword, newPassword } = changePasswordDto;
+
+    // 1. Busca o usuário no banco 
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // se senha antiga bate com a do banco
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Senha antiga incorreta');
+    }
+
+    // Verifica se a nova senha é diferente da antiga
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      throw new BadRequestException('A nova senha deve ser diferente da senha atual');
+    }
+    // Criptografa a NOVA senha
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    //Salva a nova senha no banco
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return { message: 'Senha alterada com sucesso' };
+  }
+  // --------------------------------------------
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     // Check if user exists
     await this.findOne(id);
@@ -135,7 +182,6 @@ export class UsersService {
       }
     }
 
-    
     const data = { ...updateUserDto };
     if (updateUserDto.password) {
       data.password = await bcrypt.hash(updateUserDto.password, 12);
