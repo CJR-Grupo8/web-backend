@@ -49,7 +49,11 @@ export class LojasService {
             id: true,
             nome: true,
             preco: true,
-            estoque: true,
+            // CORRIGIDO: estoque -> quantidade
+            quantidade: true,
+            // ADICIONADO: novos campos para o front
+            imageUrl: true,
+            categoria: true,
           },
         },
       },
@@ -74,7 +78,11 @@ export class LojasService {
             nome: true,
             preco: true,
             descricao: true,
-            estoque: true,
+            // CORRIGIDO: estoque -> quantidade
+            quantidade: true,
+            // ADICIONADO: novos campos
+            imageUrl: true,
+            categoria: true,
             createdAt: true,
           },
         },
@@ -129,7 +137,11 @@ export class LojasService {
             id: true,
             nome: true,
             preco: true,
-            estoque: true,
+            // CORRIGIDO: estoque -> quantidade
+            quantidade: true,
+            // ADICIONADO: novos campos
+            imageUrl: true,
+            categoria: true,
           },
         },
       },

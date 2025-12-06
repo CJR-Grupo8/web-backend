@@ -18,16 +18,25 @@ export class IslojaOwnerGuard implements CanActivate{
         const req: Request & {user?: any} = context.switchToHttp().getRequest();
         const user = req.user;
 
-        if(!user || !user.id){
-            throw new ForbiddenException ('Usuário não autenticado!');
+        if(!user || !user.sub){
+            console.log('IslojaOwnerGuard: User ou user.sub faltando', user);
+            throw new ForbiddenException ('Usuário não autenticado ou token inválido!');
         }
         
-        //criação do produto(lojaId no body)
+        const userId = Number(user.sub);
+
+        //criação do produto(lojaId no body ou query)
         if(req.method == 'POST'){
             const body = req.body as any;
-            const lojaId = body?.lojaId;
+            let lojaId = body?.lojaId;
+            
+            // Se não estiver no body (ex: multipart/form-data antes do parse), tenta na query
+            if (!lojaId && req.query.lojaId) {
+                lojaId = req.query.lojaId;
+            }
+
             if(!lojaId){
-                throw new ForbiddenException('lojaId é obrigatório para criar um produto');
+                throw new ForbiddenException(`lojaId é obrigatório. Query: ${JSON.stringify(req.query)}, Body: ${JSON.stringify(req.body)}`);
             }
 
             const loja = await this.prisma.loja.findUnique({
@@ -35,10 +44,11 @@ export class IslojaOwnerGuard implements CanActivate{
                 select: {donoId: true},
             });
             if(!loja){
-                throw new NotFoundException('Loja não encontrada');
+                throw new NotFoundException(`Loja ${lojaId} não encontrada`);
             }
-            if(loja.donoId !== user.id){
-                throw new ForbiddenException('Apenas o dono da loja pode adicionar produtos');
+            
+            if(loja.donoId !== userId){
+                throw new ForbiddenException(`Apenas o dono da loja pode adicionar produtos. Dono: ${loja.donoId}, User: ${userId}`);
             }
             return true;
         }
@@ -58,7 +68,7 @@ export class IslojaOwnerGuard implements CanActivate{
         if(!produto){
             throw new NotFoundException('Produto não encontrado');
         }
-        if(produto.loja.donoId !== user.id){
+        if(produto.loja.donoId !== userId){
             throw new ForbiddenException('Apenas o dono da loja pode modificar/excluir este produto');
         }
         return true;

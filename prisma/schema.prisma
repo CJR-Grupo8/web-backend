@@ -39,11 +39,17 @@ model Loja {
 }
 
 model Produto {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   nome      String
   preco     Float
   descricao String?
-  estoque   Int?     @default(0)
+
+  // --- NOVOS CAMPOS ADICIONADOS ---
+  categoria  String // Adicionado para corrigir o erro
+  imageUrl   String? // Adicionado para salvar a foto
+  quantidade Int?    @default(0) // Renomeado de 'estoque' para 'quantidade' para bater com seu código
+  // --------------------------------
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
