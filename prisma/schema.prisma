@@ -12,36 +12,49 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  fullName  String
-  username  String    @unique
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  lojas     Loja[]
-  comments  Comment[]
+  id                   Int       @id @default(autoincrement())
+  fullName             String
+  username             String    @unique
+  email                String    @unique
+  password             String
+  avatar               String?
+  createdAt            DateTime  @default(now())
+  lojas                Loja[]
+  comments             Comment[]
+  reviews              Review[]
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
 }
 
 model Loja {
   id        Int       @id @default(autoincrement())
   nome      String
   descricao String?
+  categoria String?
   createdAt DateTime  @default(now())
   dono      User      @relation(fields: [donoId], references: [id], onDelete: Cascade)
   donoId    Int
   produtos  Produto[]
+  reviews   Review[]
 }
 
 model Produto {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   nome      String
   preco     Float
   descricao String?
-  estoque   Int?     @default(0)
+
+  // --- NOVOS CAMPOS ADICIONADOS ---
+  categoria  String // Adicionado para corrigir o erro
+  imageUrl   String? // Adicionado para salvar a foto
+  quantidade Int?    @default(0) // Renomeado de 'estoque' para 'quantidade' para bater com seu código
+  // --------------------------------
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
   lojaId    Int
+  reviews   Review[]
 }
 
 model Comment {
@@ -51,6 +64,20 @@ model Comment {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int // 1 a 5 estrelas
+  comment   String? // Avaliação da loja ou produto
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  loja      Loja?    @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  lojaId    Int?
+  produto   Produto? @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  produtoId Int?
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  Int
 }

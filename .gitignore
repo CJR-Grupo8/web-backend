@@ -149,3 +149,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 /generated/prisma
+
+uploads/produtos/*
